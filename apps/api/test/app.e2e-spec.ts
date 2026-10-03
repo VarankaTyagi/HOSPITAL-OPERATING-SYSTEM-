@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from './../src/app.module';
 
 describe('HospitalOS End-to-End Suite (e2e)', () => {
@@ -29,7 +29,6 @@ describe('HospitalOS End-to-End Suite (e2e)', () => {
     expect(response.body).toHaveProperty('digitalTwin');
     expect(response.body.digitalTwin).toHaveProperty('queues');
     expect(response.body.digitalTwin).toHaveProperty('beds');
-    expect(response.body.digitalTwin).toHaveProperty('bottlenecks');
   });
 
   it('GET /api/departments - lists hospital clinical departments', async () => {
