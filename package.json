@@ -1,0 +1,25 @@
+{
+  "name": "hospitalos-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=apps/api\" \"npm run dev --workspace=apps/web\"",
+    "dev:api": "npm run dev --workspace=apps/api",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "db:generate": "npm run db:generate --workspace=packages/database",
+    "db:push": "npm run db:push --workspace=packages/database",
+    "db:seed": "npm run db:seed --workspace=packages/database"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "prettier": "^3.3.3",
+    "typescript": "^5.5.4"
+  }
+}

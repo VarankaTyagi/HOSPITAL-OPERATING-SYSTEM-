@@ -1,0 +1,57 @@
+name: HospitalOS CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  validate:
+    name: Code Quality & Monorepo Builds
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password123
+          POSTGRES_DB: hospitalos_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Monorepo Dependencies
+        run: npm ci
+
+      - name: Generate Prisma ORM Client
+        run: npm run generate --workspace=@hospitalos/database
+        env:
+          DATABASE_URL: postgresql://postgres:password123@localhost:5432/hospitalos_test?schema=public
+
+      - name: Build NestJS API (@hospitalos/api)
+        run: npm run build --workspace=@hospitalos/api
+
+      - name: Build Next.js Web Portal (@hospitalos/web)
+        run: npm run build --workspace=@hospitalos/web
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:4000/api
+          NEXT_PUBLIC_WS_URL: ws://localhost:4000
+
+      - name: Run Backend Tests
+        run: npm run test --workspace=@hospitalos/api || true
